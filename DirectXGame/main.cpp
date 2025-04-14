@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include "GameScene.h"
 
+
 using namespace KamataEngine;
 
 // Windowsアプリでのエントリーポイント(main関数)
