@@ -3,6 +3,7 @@
 
 class GameScene {
 public:
+	~GameScene();
 	// 初期化
 	void Initialize();
 
@@ -18,13 +19,9 @@ public:
 	// 3Dモデル
 	KamataEngine::Model* model_ = nullptr;
 
-	//ワールドトランスフォーム
+	// ワールドトランスフォーム
 	KamataEngine::WorldTransform worldTransform_;
 
-
-	//カメラ
+	// カメラ
 	KamataEngine::Camera camera_;
-
-
-
 };

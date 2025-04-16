@@ -2,14 +2,16 @@
 
 using namespace KamataEngine;
 
+GameScene::~GameScene() { delete model_; }
+
 void GameScene::Initialize() {
 
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandle_ = TextureManager::Load("pikurusuMen.png");
 
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
-	delete model_;
+	//delete model_;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -22,7 +24,7 @@ void GameScene::Update() {}
 
 void GameScene::Draw() {
 
-	// irectXCommonのインスタンスの取得
+	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	// 3Dモデル描画前処理
