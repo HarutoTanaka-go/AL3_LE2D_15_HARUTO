@@ -1,6 +1,7 @@
 #pragma once
 #include "MyMath.h"
 #include "Player.h"
+#include "SkyDome.h"
 #include <KamataEngine.h>
 #include <vector>
 
@@ -24,6 +25,10 @@ private:
 	KamataEngine::Camera camera_;
 
 	Player* player_ = nullptr;
+
+	SkyDome* skydome_ = nullptr;
+
+	KamataEngine::Model* modelSkydome_ = nullptr;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 
