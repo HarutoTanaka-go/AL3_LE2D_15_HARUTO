@@ -1,15 +1,18 @@
-#include "Skydome.h"
-#include "cassert"
-void Skydome::Initialize(Model* model, Camera* camera) {
-	// nullポインタチェック
-	assert(model);
-	// 引数として受け取ったデータをメンバ変数に記録する
+#include "SkyDome.h"
+
+using namespace KamataEngine;
+
+void SkyDome::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera) {
+
+	textureHandle_ = textureHandle;
+
 	model_ = model;
-	camera_ = camera;
-	// ワールド変換の初期化
+
 	worldTransform_.Initialize();
+
+	camera_ = camera;
 }
 
-void Skydome::Update() { worldTransform_.TransferMatrix(); }
+void SkyDome::Update() { worldTransform_.TransferMatrix(); }
 
-void Skydome::Draw() { model_->Draw(worldTransform_, *camera_); }
+void SkyDome::Draw() { model_->Draw(worldTransform_, *camera_); }

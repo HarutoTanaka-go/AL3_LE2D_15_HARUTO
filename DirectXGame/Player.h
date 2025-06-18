@@ -1,51 +1,95 @@
 #pragma once
-#include "KamataEngine.h"
-#include <vector>
+#include <KamataEngine.h>
 
-using namespace KamataEngine;
+class MapChipField;
 
-// 自キャラ
 class Player {
-private:
-	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::Model* model_ = nullptr;
-	KamataEngine::Camera* camera_ = nullptr;
-	uint32_t textureHandle_ = 0u;
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
-	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformPlayer_;
+	void Update();
 
-	KamataEngine::Vector3 velocity_ = {};
+	void InputMove();
 
-	static inline const float kAcceleration = 0.5f;
-	static inline const float kAttenuation = 0.1f;
-	static inline const float kLimitRunSpeed = 1.0f;
+	void AnimateTurn();
+
+	void Draw();
 
 	enum class LRDirection {
 		kRight,
 		kLeft,
 	};
 
-	LRDirection lrDirection_ = LRDirection::kRight;
+	struct CollisionMapInfo {
+		bool ceiling = false;
+		bool landing = false;
+		bool hitWall = false;
+		KamataEngine::Vector3 move;
+	};
 
-	float turnFirstRotationY_ = 0.0f;
-	float turnTimer_ = 0.0f;
+	enum Corner {
+		kRightBottom,
+		kLeftBottom,
+		kRightTop,
+		kLeftTop,
 
-	static inline const float kTimeTurn = 0.1f;
+		kNumCorner
 
-	bool onGround_ = true;
-	static inline const float kGravityAcceleration = 0.1f;
-	static inline const float kLimitFallSpeed = 0.1f;
-	static inline const float kJumpAcceleration = 1.0f;
+	};
 
-public:
-	// 初期化
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
-	// 更新
-	void Update();
-	// 描画
-	void Draw();
+	void CheckMapCollision(CollisionMapInfo& info);
+
+	void CheckMapCollisionUp(CollisionMapInfo& info);
+
+	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
+
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
 
-	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+	void CheckMapMove(const CollisionMapInfo& info);
+
+	void CheckMapCeiling(const CollisionMapInfo& info);
+
+private:
+	KamataEngine::WorldTransform worldTransform_;
+
+	KamataEngine::Model* model_ = nullptr;
+
+	uint32_t textureHandle_ = 0u;
+
+	KamataEngine::Camera* camera_ = nullptr;
+
+	KamataEngine::Vector3 velocity_ = {};
+
+	static inline const float kAcceleration = 0.1f;
+
+	static inline const float kAttenuation = 0.1f;
+
+	static inline const float kLimitRunSpeed = 2;
+
+	LRDirection lrDirection_ = LRDirection::kRight;
+
+	float turnFirstRotationY_ = 0.0f;
+
+	float turnTimer_ = 0.0f;
+
+	static inline const float kTimeTurn = 0.3f;
+
+	bool onGround_ = true;
+
+	static inline const float kGravityAcceleration = 0.1f;
+
+	static inline const float kLimitFallSpeed = 2;
+
+	static inline const float kJumpAccleration = 1.0f;
+
+	MapChipField* mapChipField_ = nullptr;
+
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
+
+	static inline const float kBlank = 1.0f;
 };

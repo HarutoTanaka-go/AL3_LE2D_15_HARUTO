@@ -1,9 +1,12 @@
 #pragma once
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
+/// <summary>
+/// アフィン変換
+/// </summary>
 
-Matrix4x4 MakeAffineMatrix(Vector3& scale, Vector3& rotation, Vector3& translation);
+KamataEngine::Matrix4x4 MakeAffineMatrix(KamataEngine::Vector3& scale, KamataEngine::Vector3& rotation, KamataEngine::Vector3& translation);
 
-// イージング
-float EaseInOut(float x1, float x2, float t);
+class MyMath {};
+
+float EaseInOut(float x1, float, float t);

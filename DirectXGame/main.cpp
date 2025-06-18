@@ -8,32 +8,26 @@ using namespace KamataEngine;
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	KamataEngine::Initialize(L"AL3");
+	KamataEngine::Initialize(L"LE2D_15_タナカ_ハルト");
 
-	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	// ゲームシーンのインスタンス生成
 	GameScene* gameScene = new GameScene();
-	// ゲームシーンの初期化
-	gameScene->Initialize();
 
-	// メインループ
+	gameScene->Intialize();
+
+	// エンジンの更新
 	while (true) {
-		// エンジンの更新
 		if (KamataEngine::Update()) {
 			break;
 		}
 
-		// ゲームシーンの更新
+		// ゲームシーンの初期化
 		gameScene->Update();
-
 		// 描画開始
 		dxCommon->PreDraw();
-
 		// ゲームシーンの描画
 		gameScene->Draw();
-
 		// 描画終了
 		dxCommon->PostDraw();
 	}

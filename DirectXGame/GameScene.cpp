@@ -1,28 +1,56 @@
 #include "GameScene.h"
-#include "MyMath.h"
 
 using namespace KamataEngine;
 
-void GameScene::Initialize() {
+GameScene::~GameScene() {
+	// デストラクタ
+	delete model_;
+	delete player_;
+	delete debugCamera_;
+	delete modelSkydome_;
+	delete mapChipField_;
+	delete cameraController_;
+
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			delete worldTransformBlock;
+		}
+	}
+	worldTransformBlocks_.clear();
+}
+
+void GameScene::Intialize() {
 
 	model_ = Model::Create();
-	camera_.Initialize();
 
-	modelPlayer_ = Model::CreateFromOBJ("player", true);
+	modelBlock_ = Model::CreateFromOBJ("block");
 
-	// 自キャラの生成
-	player_ = new Player();
+	modelPlayer_ = Model::CreateFromOBJ("player");
 
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 
-	skydome_ = new Skydome();
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
 
-	skydome_->Initialize(modelSkydome_, &camera_);
+	camera_.Initialize();
 
-	// 座標をマップチップ番号で指定
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(3, 18);
-	// 自キャラの初期化
+	// デバックカメラの生成
+	debugCamera_ = new DebugCamera(1280, 720);
+
+	skydome_ = new SkyDome();
+
+	mapChipField_ = new MapChipField;
+
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+
+	player_ = new Player();
+
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
+
+	player_->SetMapChipField(mapChipField_);
+
+	GenerateBlocks();
+
+	skydome_->Initialize(modelSkydome_, textureHandle_, &camera_);
 
 	// カメラコントローラの初期化
 	cameraController_ = new CameraController();
@@ -31,31 +59,87 @@ void GameScene::Initialize() {
 	cameraController_->Reset();
 
 	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
-	cameraController_->SetMovableArea(cameraArea);
+	cameraController_->SetMovebleArea(cameraArea);
+}
 
-	mapChipField_ = new MapChipField();
-	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
-	GenerateBlocks();
+void GameScene::Update() {
+	player_->Update();
+	skydome_->Update();
+	debugCamera_->Update();
+	cameraController_->Update();
 
-	// ブロック
-	modelBlock_ = Model::CreateFromOBJ("block", true);
+#ifdef _DEBUG
+	if (Input::GetInstance()->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+#endif // DEBUG
+	if (isDebugCameraActive_) {
+		// デバックカメラの更新
+		debugCamera_->Update();
+		// デバックカメラのビュー行列
+		camera_.matView = debugCamera_->GetCamera().matView;
+		// デバックカメラのプロジェクション行列
+		camera_.matProjection = debugCamera_->GetCamera().matProjection;
+		// ビュープロジェクション行列の転送
+		camera_.TransferMatrix();
 
-	// デバッグ
-	debugCamera_ = new DebugCamera(1280, 720);
+	} else {
+		camera_.matView = cameraController_->GetViewProjection().matView;
+		camera_.matProjection = cameraController_->GetViewProjection().matProjection;
+
+		// ビュープロジェクション行列の更新と転送
+		camera_.TransferMatrix();
+	}
+
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+
+			// 定数バッファに転送する
+			worldTransformBlock->TransferMatrix();
+		}
+	}
+}
+
+void GameScene::Draw() {
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	Model::PreDraw(dxCommon->GetCommandList());
+
+	player_->Draw();
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			modelBlock_->Draw(*worldTransformBlock, camera_);
+		}
+	}
+
+	skydome_->Draw();
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			modelBlock_->Draw(*worldTransformBlock, camera_);
+		}
+	}
+
+	Model::PostDraw();
 }
 
 void GameScene::GenerateBlocks() {
+	// 要素数
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
-
+	// 要素数を変更する
+	// 列数を設定(縦方向のブロック数)
 	worldTransformBlocks_.resize(numBlockVirtical);
-
-	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
-		worldTransformBlocks_[i].resize(numBlockHorizontal);
-	}
-
-	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
-		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+	for (uint32_t i = 0; i < numBlockVirtical; i++) {
+		for (uint32_t j = 0; j < numBlockHorizontal; j++) {
+			//	1列要素数を設定(横方向のブロック数)
+			worldTransformBlocks_[i].resize(numBlockHorizontal);
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
@@ -64,82 +148,4 @@ void GameScene::GenerateBlocks() {
 			}
 		}
 	}
-}
-
-GameScene::~GameScene() {
-	delete model_;
-	delete player_;
-	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			delete worldTransformBlock;
-		}
-	}
-	worldTransformBlocks_.clear();
-	delete debugCamera_;
-	delete modelSkydome_;
-	delete mapChipField_;
-}
-
-void GameScene::Update() {
-	player_->Update();
-
-	cameraController_->Update();
-
-	skydome_->Update();
-	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock) {
-				continue;
-			}
-			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
-			worldTransformBlock->TransferMatrix();
-		}
-	}
-	debugCamera_->Update();
-
-#ifdef _DEBUG
-
-	if (Input::GetInstance()->TriggerKey(DIK_0)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-
-#endif // DEBUG
-
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_.matView = debugCamera_->GetCamera().matView;
-		camera_.matProjection = debugCamera_->GetCamera().matProjection;
-		camera_.TransferMatrix();
-	} else {
-		camera_.matView = cameraController_->GetViewProjection().matView;
-		camera_.matProjection = cameraController_->GetViewProjection().matProjection;
-
-		camera_.TransferMatrix();
-	}
-
-	/*for (WorldTransform* worldTransformBlock : worldTransformBlocks_)
-	{
-	    worldTransformBlock->matWorld_ =
-	        MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
-	    worldTransformBlock->TransferMatrix();
-	}*/
-}
-
-void GameScene::Draw() {
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-	Model::PreDraw(dxCommon->GetCommandList());
-	player_->Draw();
-	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock) {
-				continue;
-			}
-			modelBlock_->Draw(*worldTransformBlock, camera_);
-		}
-	}
-	skydome_->Draw();
-	/*for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-	    modelBlock_->Draw(*worldTransformBlock, camera_);
-	}*/
-	Model::PostDraw();
 }
