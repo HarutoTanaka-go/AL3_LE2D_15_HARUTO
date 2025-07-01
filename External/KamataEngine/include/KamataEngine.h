@@ -41,7 +41,7 @@ namespace KamataEngine {
 /// エンジンの初期化
 /// </summary>
 /// <param name="title">ウィンドウタイトル</param>
-void Initialize(const std::wstring& title = L"LE2X_99_カマタ_タロウ");
+void Initialize(const std::wstring& title = L"LE2D_15_タナカ_ハルト");
 
 /// <summary>
 /// エンジンの終了処理

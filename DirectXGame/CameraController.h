@@ -53,3 +53,4 @@ private:
 
 	static inline const Rect targetMargin = {-9.0f, 9.0f, -5.0f, 5.0f};
 };
+
