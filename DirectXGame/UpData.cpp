@@ -1,5 +1,4 @@
 #include "UpData.h"
-#include "MyMath.h"
 
 using namespace KamataEngine;
 
