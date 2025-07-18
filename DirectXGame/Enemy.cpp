@@ -1,6 +1,6 @@
 #include "Enemy.h"
 #include "MapChipField.h"
-#include "MyMath.h"
+#include "Math.h"
 #include "UpData.h"
 #include <algorithm>
 #include <cassert>
@@ -38,11 +38,13 @@ void Enemy::UpDate() {
 	walkTimer += 1.0f / 60.0f;
 
 	// 02_09 23枚目 回転アニメーション
-	worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
+	// worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
 
-	/*float param = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
+	float param = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
 
-	float degree=*/
+	float degree = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
+
+	worldTransform_.rotation_.x = degree * (std::numbers::pi_v<float> / 180.0f);
 
 	// 02_09 スライド8枚目 ワールド行列更新
 	upData->WorldTransformUpData(worldTransform_);
@@ -53,3 +55,32 @@ void Enemy::Draw() {
 	// 02_09 スライド9枚目  モデル描画
 	model_->Draw(worldTransform_, *camera_);
 }
+
+// 02_10 スライド14枚目
+AABB Enemy::GetAABB() {
+
+	Vector3 worldPos = GetWorldPosition();
+
+	AABB aabb;
+
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+// 02_10 スライド14枚目
+Vector3 Enemy::GetWorldPosition() {
+
+	Vector3 worldPos;
+
+	// ワールド行列の平行移動成分を取得（ワールド座標）
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
+// 02_10 スライド20枚目
+void Enemy::OnCollision(const Player* player) { (void)player; }

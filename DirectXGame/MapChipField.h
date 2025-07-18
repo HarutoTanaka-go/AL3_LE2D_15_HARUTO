@@ -1,7 +1,7 @@
 #pragma once
 
 #include "KamataEngine.h"
-#include "MyMath.h"
+#include "Math.h"
 #include <cstdint>
 #include <string>
 #include <vector>

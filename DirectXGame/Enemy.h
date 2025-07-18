@@ -1,8 +1,13 @@
 #pragma once
 #include "KamataEngine.h"
 #include "MapChipField.h"
-#include "MyMath.h"
+#include "Math.h"
 #include "UpData.h"
+
+using namespace KamataEngine;
+
+// 02_10 20枚目
+class Player;
 
 /// <summary>
 /// 敵
@@ -27,6 +32,13 @@ public:
 	/// </summary>
 	void Draw();
 
+	// 02_10 スライド14枚目
+	AABB GetAABB();
+	// 02_10 スライド14枚目 ワールド座標を取得
+	Vector3 GetWorldPosition();
+	// 02_10 スライド20枚目 衝突応答
+	void OnCollision(const Player* player);
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -47,11 +59,19 @@ private:
 	Vector3 velocity_ = {};
 
 	// 02_09 19枚目
-	static inline const float kWalkMotionAngleStart = 0.0f;
+	// 最初の角度
+	static inline const float kWalkMotionAngleStart = -10.0f;
+
 	// 02_09 19枚目
-	static inline const float kWalkMotionAngleEnd = 30.0f;
+	// 最後の角度
+	static inline const float kWalkMotionAngleEnd = 40.0f;
+
 	// 02_09 19枚目
 	static inline const float kWalkMotionTime = 1.0f;
 	// 02_09 20枚目
 	float walkTimer = 0.0f;
+
+	// 02_10 14枚目 当たり判定サイズ
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
 };
