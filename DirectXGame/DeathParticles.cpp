@@ -1,10 +1,4 @@
 #include "DeathParticles.h"
-#include "MapChipField.h"
-#include "Math.h"
-#include "UpData.h"
-#include <algorithm>
-#include <cassert>
-#include <numbers>
 
 void DeathParticles::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
@@ -69,7 +63,7 @@ void DeathParticles::Update() {
 
 	// 02_11_12枚目
 	for (auto& worldTransform : worldTransforms_) {
-		// ワールド行列更新（アフィン変換～DirectXに転送）,
+		// ワールド行列更新（アフィン変換～DirectXに転送）
 		upData->WorldTransformUpData(worldTransform);
 	}
 }

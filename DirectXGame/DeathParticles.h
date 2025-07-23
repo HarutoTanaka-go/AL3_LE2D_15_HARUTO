@@ -1,4 +1,5 @@
 #pragma once
+
 #include "KamataEngine.h"
 #include "Math.h"
 #include "UpData.h"
@@ -6,10 +7,12 @@
 #include <array>
 #include <numbers>
 
-// 02_11_7枚目 デス演出用パーティクル
+using namespace KamataEngine;
+
 /// <summary>
 /// デス演出用パーティクル
 /// </summary>
+// 02_11_7枚目 デス演出用パーティクル
 class DeathParticles {
 public:
 	// 02_11_8枚目 Initialize,Update,Draw関数追加
@@ -17,11 +20,10 @@ public:
 	void Update();
 	void Draw();
 
+	// 02_12 34枚目で実装
+	bool IsFinished() { return isFinished_; }
+
 private:
-	WorldTransform worldTransform_;
-
-	UpData* upData = nullptr;
-
 	// 02_11_10枚目パーティクルの個数
 	static inline const uint32_t kNumParticles = 8;
 
@@ -54,4 +56,9 @@ private:
 
 	// 02_11_30枚目 色の数値
 	Vector4 color_;
+
+	UpData* upData = nullptr;
+
+	// ワールド変換データ
+	WorldTransform worldTransform_;
 };
