@@ -60,9 +60,6 @@ public:
 	// 02_10 21枚目 衝突応答
 	void OnCollision(const Enemy* enemy);
 
-	// 02_12 11枚目 デスフラグ
-	bool IsDead() const { return isDead_; }
-
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -170,7 +167,4 @@ private:
 
 	// 02_08 スライド27枚目 壁接触している場合の処理
 	void UpdateOnWall(const CollisionMapInfo& info);
-
-	// 02_12 11枚目 デスフラグ
-	bool isDead_ = false;
 };

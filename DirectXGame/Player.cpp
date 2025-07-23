@@ -202,6 +202,7 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			for (uint32_t i = 0; i < positionsNew.size(); ++i) {
 				positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 			}
+
 			MapChipType mapChipType;
 			// 真下の当たり判定を行う
 			bool hit = false;
@@ -471,7 +472,6 @@ AABB Player::GetAABB() {
 // 02_10 21枚目
 void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
-
-	// 02_12 12枚目 書き換え
-	isDead_ = true;
+	// ジャンプ初速
+	velocity_ += Vector3(0, kJumpAcceleration / 60.0f, 0);
 }
