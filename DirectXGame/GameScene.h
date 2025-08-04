@@ -2,9 +2,11 @@
 #include "CameraController.h"
 #include "DeathParticles.h"
 #include "Enemy.h"
+#include "Fade.h"
 #include "MapChipField.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "UpData.h"
 #include <KamataEngine.h>
 
 using namespace KamataEngine;
@@ -35,9 +37,12 @@ public:
 	bool IsFinished() const { return finished_; }
 
 private:
+	// 02_12 4枚目 ゲームのフェーズ（型）
 	enum class Phase {
-		kPlay, // ゲームプレイ
-		kDeath // デス演出
+		kFadeIn,  // フェードイン 02_13 28枚目で追加
+		kPlay,    // ゲームプレイ
+		kDeath,   // デス演出
+		kFadeOut, // フェードアウト 02_13 28枚目で追加
 	};
 
 	// 02_12 4枚目 ゲームの現在フェーズ（変数）
@@ -95,4 +100,9 @@ private:
 
 	// 02_12 26枚目
 	bool finished_ = false;
+
+	// 02_13 28枚目
+	Fade* fade_ = nullptr;
+
+	UpData* upData = nullptr;
 };
