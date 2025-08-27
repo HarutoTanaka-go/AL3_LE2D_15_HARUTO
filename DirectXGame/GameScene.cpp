@@ -73,13 +73,15 @@ void GameScene::Initialize() {
 
 	modelPlayer_ = Model::CreateFromOBJ("player", true);
 
+	modelAttack_ = Model::CreateFromOBJ("attack_effect", true);
+
 	// 座標をマップチップ番号で指定
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
 
 	player_->SetMapChipField(mapChipField_);
 
 	// 自キャラの初期化
-	player_->Initialize(modelPlayer_, &camera_, playerPosition);
+	player_->Initialize(modelPlayer_, modelAttack_, &camera_, playerPosition);
 
 	CController_ = new CameraController(); // 生成
 
@@ -232,6 +234,15 @@ void GameScene::Update() {
 	//	deathParticles_->Update();
 	// }
 #pragma endregion
+
+	// 02_15 7枚目 デスフラグの立った敵を削除
+	enemies_.remove_if([](Enemy* enemy) {
+		if (enemy->IsDead()) {
+			delete enemy;
+			return true;
+		}
+		return false;
+	});
 
 	ChangePhase();
 
@@ -435,6 +446,11 @@ void GameScene::CheckAllCollisions() {
 
 		// 自キャラと敵弾全ての当たり判定
 		for (Enemy* enemy : enemies_) {
+
+			// コリジョン無効の敵はスキップ
+			if (enemy->IsCollisionDisabled())
+				continue;
+
 			// 敵弾の座標
 			aabb2 = enemy->GetAABB();
 
