@@ -100,12 +100,12 @@ void GameOver::Update() {
 	counter_ += 1.0f / 60.0f;
 	counter_ = std::fmod(counter_, kTimeGameOverMove);
 
-	float angle = counter_ / kTimeGameOverMove * 2.0f * std::numbers::pi_v<float>;
+	float angle = counter_ / kTimeGameOverMove * 70.0f * std::numbers::pi_v<float>;
 
 	worldTransformGameOver_.translation_.y = std::sin(angle) + 10.0f;
 
 	// 回転（常に続ける）
-	worldTransformGameOver_.rotation_.z += 0.1f;
+	worldTransformGameOver_.rotation_.z += 20.0f;
 
 	// === ▼ 回転接近 ▼ ===
 	// 一定距離まで近づいてきたら停止
@@ -120,8 +120,7 @@ void GameOver::Update() {
 		}
 	}
 
-	// idiotFaceがチラチラこっちを向く動き
-	lookTimer_ += 1.0f / 60.0f;                     // 1フレーム分タイマー加算
+	lookTimer_ += 1.0f / 120.0f;                     // 1フレーム分タイマー加算
 	lookTimer_ = std::fmod(lookTimer_, kLookCycle); // 周期でループ
 
 	switch (lookState_) {
